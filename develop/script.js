@@ -69,14 +69,17 @@ var questionThree = {
 }
 var allAnswered
 var allTheQuestions
+var questionOneCorrect
+var questionTwoCorrect
+var questionThreeCorrect
 
-var buttonOne = document.createElement("div")
-buttonOne.setAttribute("class", "buttons whiteText")
-var buttonTwo = document.createElement("div")
+var buttonOne = document.createElement("li")
+buttonOne.setAttribute("class", "buttons thisOne whiteText")
+var buttonTwo = document.createElement("li")
 buttonTwo.setAttribute("class", "buttons whiteText")
-var buttonThree = document.createElement("div")
+var buttonThree = document.createElement("li")
 buttonThree.setAttribute("class", "buttons whiteText")
-var buttonFour = document.createElement("div")
+var buttonFour = document.createElement("li")
 buttonFour.setAttribute("class", "buttons whiteText")
 
 highScoreBtn.addEventListener('click', function (event) {
@@ -98,27 +101,53 @@ function startTimer() {
 
 }
 
-function addButtons() {
+function questionTwoGo(){
+    h1El.textContent = "Question 2"
+    questionArea.textContent = questionOne.question;
+    buttonsArea.append(buttonOne);
+    buttonOne.textContent = questionOne.correct.answerText
+    buttonsArea.append(buttonTwo);
+    buttonTwo.textContent = questionOne.false1.answerText
+    buttonsArea.append(buttonThree);
+    buttonThree.textContent = questionOne.false2.answerText
+    buttonsArea.append(buttonFour);
+    buttonFour.textContent = questionTwo.false3.answerText
+}
+
+function questionOneGo() {
     h1El.textContent = "Question 1"
     questionArea.textContent = questionOne.question;
     buttonsArea.append(buttonOne);
-    buttonOne.textContent = "These"
+    buttonOne.textContent = questionOne.correct.answerText
     buttonsArea.append(buttonTwo);
-    buttonTwo.textContent = "are"
+    buttonTwo.textContent = questionOne.false1.answerText
     buttonsArea.append(buttonThree);
-    buttonThree.textContent = "the"
+    buttonThree.textContent = questionOne.false2.answerText
     buttonsArea.append(buttonFour);
-    buttonFour.textContent = "answers"
+    buttonFour.textContent = questionTwo.false3.answerText
+    buttonsArea.addEventListener('click',function(event){
+        console.log(event)
+        if(event.target.matches('.thisOne')){
+            questionTwoGo();
+        }else{
+            console.log("Wrong!")
+            timer = timer + 5
+            return
+        }
+    })
 }
 
-function getRandomQuestion() {
 
-}
+
+// function getRandomQuestion() {
+
+// }
 
 function startGame() {
     startTimer();
-    addButtons();
+    questionOneGo();
     console.log(questionOne)
 }
 
 startBtn.addEventListener('click', startGame);
+
