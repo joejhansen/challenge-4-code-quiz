@@ -1,6 +1,6 @@
-*{
+/* *{
     outline: dashed red;
-}
+} */
 
 body{
     display: flex;
@@ -96,7 +96,20 @@ main{
     background-color: rgb(0, 200, 0)
 }
 .incorrect{
-    color: red
+    background-color: red;
+    border:solid red 3px;
+    /* min-width: 10vh;
+    min-height:5vh;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 1em;
+    border: solid red 3px;
+    font-family:Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color:white;
+    display:flex;
+    justify-content: center;
+    align-items: center; */
 }
 
 .hidden{
