@@ -64,6 +64,10 @@ main{
     display:flex;
     justify-content:center;
 }
+#buttonsDiv{
+    display:flex;
+    flex-direction: column;
+}
 .buttons{
     background: #351c75;
     min-width: 10vh;
@@ -71,7 +75,9 @@ main{
     border-radius: 10px;
     cursor: pointer;
     margin: 1em;
-    border: solid #351c75 3px
+    border: solid #351c75 3px;
+    display: flex;
+    flex-direction: column;
 }
 
 #startButton{
@@ -90,6 +96,10 @@ main{
     display:flex;
     justify-content: center;
     align-items: center;
+}
+form {
+    display: flex;
+    flex-direction: column;
 }
 
 .correct{
