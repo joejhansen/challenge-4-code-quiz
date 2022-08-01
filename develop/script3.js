@@ -1,3 +1,7 @@
+// this took a while
+
+// fetching elements
+var highScoreArea = document.querySelector("#highScoreDiv")
 var startBtn = document.querySelector("#startButton");
 var highScoreBtn = document.querySelector("#highScoreLink")
 var timerText = document.querySelector("#timerCount")
@@ -7,6 +11,7 @@ var questionArea = document.querySelector("#pDescriptionText")
 var questionAreaDiv = document.querySelector("#pDescriptionDiv")
 var footerArea = document.querySelector('footer')
 var footerTextArea = document.createElement('h2')
+// this is everything to do with inputting high scores
 var formHighScore = document.createElement('form')
 var inputHighScore = document.createElement('input')
 inputHighScore.setAttribute("type", "text")
@@ -20,19 +25,22 @@ submitHighScore.setAttribute("id","submitBtn")
 formHighScore.appendChild(inputHighScore)
 formHighScore.appendChild(submitHighScore)
 
+// setting up an empty array for the highscores
+var highScores = []
+// more global variables
+var pushThisHighScore
+var yourScore
+var yourScoreStringified
+var yourScoreParsed
+var yourInitials
+// the timer count
 var timer = 100
-var score = 0
+// 
+// var score = 0
 var timerTimer
 var questionIndex = 0
 var allAnswered = false
 var questionsAnswered = 0
-
-submitHighScore.addEventListener('click', function(event){
-    event.preventDefault();
-    console.log("It's defaulting")
-    var yourInitials = inputHighScore.value
-    localStorage.setItem("intials", yourInitials)
-})
 
 var questions = [{
     titleText: "Question 1",
@@ -102,9 +110,39 @@ var questions = [{
     }]
 }]
 
+submitHighScore.addEventListener('click', function(event){
+    event.preventDefault();
+    console.log("It's defaulting");
+    yourInitials = inputHighScore.value.trim();
+    yourScore = yourInitials.toUpperCase() + ": " + timer;
+    highScores.push(yourScore);
+    yourScoreStringified = JSON.stringify(highScores);
+    console.log(yourScoreStringified);
+    questionAreaDiv.removeChild(formHighScore);
+    localStorage.setItem("highScores",yourScoreStringified)
+    highScoreArea.appendChild(highScoreBtn)
+})
+
+function showHighScores(){
+    highScoreArea.removeChild(highScoreBtn)
+    highScoreArea.appendChild(startBtn)
+    // i assume this works because of type coercion
+    while (buttonsArea.firstChild) {
+        buttonsArea.removeChild(buttonsArea.firstChild);
+    }
+    h1El.textContent = "High Scores"
+    questionArea.textContent = "View scores below"
+    for (i = 0; i < highScores.length; i++){
+        var highScoreEl = document.createElement('h2')
+        highScoreEl.textContent = highScores[i];
+        buttonsArea.appendChild(highScoreEl)
+    }
+}
+
 highScoreBtn.addEventListener('click', function (event) {
     event.preventDefault();
-    console.log("It's defaulting")
+    showHighScores();
+    
 })
 
 function endGame() {
@@ -112,15 +150,16 @@ function endGame() {
     timerText.textContent = timer
     h1El.textContent = "Your score is : " + timer
     if (timer <= 0) {
+        timerText.textContent = 0
         questionArea.textContent = "Sorry, you lose :("
     } else {
         questionArea.textContent = "Congratulations!"
+        questionAreaDiv.appendChild(formHighScore)
     }
     console.log("That's all folks")
     while (buttonsArea.firstChild) {
         buttonsArea.removeChild(buttonsArea.firstChild);
     }
-    questionAreaDiv.appendChild(formHighScore)
     buttonsArea.appendChild(startBtn)
 }
 
@@ -140,8 +179,11 @@ function startTimer() {
 }
 
 function displayQuestion() {
+    // get the index starting at 0 of which question to grab, put it in an easy to read var
     var questionToDisplay = questions[questionIndex];
+    // put the titletext in the h1 element
     h1El.textContent = questionToDisplay.titleText;
+    // show the question
     questionArea.textContent = questionToDisplay.question;
     for (var i = 0; i < questionToDisplay.choices.length; i++) {
         var choiceBtn = document.createElement('button');
@@ -166,7 +208,12 @@ function startGame() {
         questionAreaDiv.removeChild(formHighScore)
     }
     // otherwise we remove the start button which we know is there.
-    buttonsArea.removeChild(startBtn)
+    while (buttonsArea.firstChild){
+        buttonsArea.removeChild(buttonsArea.firstChild)
+    }
+    while (highScoreArea.firstChild){
+        highScoreArea.removeChild(highScoreArea.firstChild)
+    }
     timer = 100
     questionIndex = 0
     startTimer();
@@ -202,3 +249,13 @@ buttonsArea.addEventListener('mouseup', function (event) {
     }
 
 })
+
+// get the scores if there are scores
+function init(){
+    yourScoreParsed = JSON.parse(localStorage.getItem('highScores'));
+    if (yourScoreParsed !== null){
+        highScores = yourScoreParsed
+    }
+    console.log(JSON.stringify(yourScoreParsed))
+}
+init();
