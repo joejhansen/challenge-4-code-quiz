@@ -1,276 +1,261 @@
+// this took a while
+
+// fetching elements
+var highScoreArea = document.querySelector("#highScoreDiv")
 var startBtn = document.querySelector("#startButton");
 var highScoreBtn = document.querySelector("#highScoreLink")
 var timerText = document.querySelector("#timerCount")
 var buttonsArea = document.querySelector("#buttonsDiv")
 var h1El = document.querySelector("#headerOneText")
 var questionArea = document.querySelector("#pDescriptionText")
+var questionAreaDiv = document.querySelector("#pDescriptionDiv")
 var footerArea = document.querySelector('footer')
 var footerTextArea = document.createElement('h2')
-var timer = 100
-var score = 0
+// this is everything to do with inputting high scores
+var formHighScore = document.createElement('form')
+var inputHighScore = document.createElement('input')
+inputHighScore.setAttribute("type", "text")
+inputHighScore.setAttribute("id", "initials")
+var submitHighScore = document.createElement('input')
+submitHighScore.setAttribute("type", "submit")
+submitHighScore.setAttribute("value", "Submit Your Initials")
+submitHighScore.setAttribute('class','buttons')
+submitHighScore.classList.add('whiteText')
+submitHighScore.setAttribute("id","submitBtn")
+formHighScore.appendChild(inputHighScore)
+formHighScore.appendChild(submitHighScore)
 
-var questionOne = {
+// setting up an empty array for the highscores
+var highScores = []
+// more global variables
+var pushThisHighScore
+var yourScore
+var yourScoreStringified
+var yourScoreParsed
+var yourInitials
+// the timer count
+var timer = 100
+// 
+// var score = 0
+var timerTimer
+var questionIndex = 0
+var allAnswered = false
+var questionsAnswered = 0
+
+var questions = [{
     titleText: "Question 1",
     question: "What does DOM stand for?",
-    false1: {
+    choices: [{
         answerText: "Direct Object Modifier",
         isTrue: false,
-    },
-    false2: {
+    }, {
         answerText: "Delinear Orientation Method",
         isTrue: false,
-    },
-    false3: {
-        answerText: "Deli Or Market",
-        isTrue: false,
-    },
-    correct: {
+    }, {
         answerText: "Document Object Model",
         isTrue: true,
-    }
-}
-
-
-var questionTwo = {
+    }, {
+        answerText: "Deli or Market",
+        isTrue: false,
+    }]
+}, {
     titleText: "Question 2",
     question: "Which option creates an empty array?",
-    false1: {
-        answerText: "function array('');",
-        isTrue: false,
-    },
-    false2: {
-        answerText: "var array = { };",
-        isTrue: false,
-    },
-    false3: {
-        answerText: "var array;",
-        isTrue: false,
-    },
-    correct: {
+    choices: [{
         answerText: "var array = [ ];",
         isTrue: true,
-    }
-}
-
-
-var questionThree = {
+    }, {
+        answerText: "var array = { };",
+        isTrue: false,
+    }, {
+        answerText: "var array;",
+        isTrue: false,
+    }, {
+        answerText: "function array('');",
+        isTrue: false,
+    }]
+}, {
     titleText: "Question 3",
     question: "Where and in which element should you link your javascript in HTML?",
-    false1: {
+    choices: [{
         answerText: "Immediately after the <html> tag",
         isTrue: false,
-    },
-    false2: {
+    }, {
         answerText: "Anywhere, it doesn't matter",
         isTrue: false,
-    },
-    false3: {
+    }, {
         answerText: "At the beginning of the <body> tag",
         isTrue: false,
     },
-    correct: {
+    {
         answerText: "At the very end of the <body> tag",
         isTrue: true,
+    }]
+}, {
+    titleText: "Question 4",
+    question: "How would you call a variable labeled variableName in css?",
+    choices: [{
+        answerText: "var variableName",
+        isTrue: false,
+    }, {
+        answerText: "var(--variableName)",
+        isTrue: true,
+    }, {
+        answerText: "variableName",
+        isTrue: false,
+    },
+    {
+        answerText: "variableName();",
+        isTrue: false,
+    }]
+}]
+
+submitHighScore.addEventListener('click', function(event){
+    event.preventDefault();
+    console.log("It's defaulting");
+    yourInitials = inputHighScore.value.trim();
+    yourScore = yourInitials.toUpperCase() + ": " + timer;
+    highScores.push(yourScore);
+    yourScoreStringified = JSON.stringify(highScores);
+    console.log(yourScoreStringified);
+    questionAreaDiv.removeChild(formHighScore);
+    localStorage.setItem("highScores",yourScoreStringified)
+    highScoreArea.appendChild(highScoreBtn)
+})
+
+function showHighScores(){
+    highScoreArea.removeChild(highScoreBtn)
+    highScoreArea.appendChild(startBtn)
+    // i assume this works because of type coercion
+    while (buttonsArea.firstChild) {
+        buttonsArea.removeChild(buttonsArea.firstChild);
     }
-}
-var allAnswered = false
-
-var allTheQuestions = {
-    questionOne,
-    questionTwo,
-    questionThree,
-}
-
-
-var buttonOne = document.createElement("li")
-buttonOne.setAttribute("class", "buttons whiteText")
-var buttonTwo = document.createElement("li")
-buttonTwo.setAttribute("class", "buttons whiteText")
-var buttonThree = document.createElement("li")
-buttonThree.setAttribute("class", "buttons whiteText")
-var buttonFour = document.createElement("li")
-buttonFour.setAttribute("class", "buttons whiteText")
-
-allTheButtons = {
-    buttonOne,
-    buttonTwo,
-    buttonThree,
-    buttonFour,
+    h1El.textContent = "High Scores"
+    questionArea.textContent = "View scores below"
+    for (i = 0; i < highScores.length; i++){
+        var highScoreEl = document.createElement('h2')
+        highScoreEl.textContent = highScores[i];
+        buttonsArea.appendChild(highScoreEl)
+    }
 }
 
 highScoreBtn.addEventListener('click', function (event) {
     event.preventDefault();
+    showHighScores();
+    
 })
 
-// idk what I'm doing with this, i only know array.every
-function allAreEqual(object) {
-    return new set(Object.values(object)).size === 1;
+function endGame() {
+    clearInterval(timerTimer);
+    timerText.textContent = timer
+    h1El.textContent = "Your score is : " + timer
+    if (timer <= 0) {
+        timerText.textContent = 0
+        questionArea.textContent = "Sorry, you lose :("
+    } else {
+        questionArea.textContent = "Congratulations!"
+        questionAreaDiv.appendChild(formHighScore)
+    }
+    console.log("That's all folks")
+    while (buttonsArea.firstChild) {
+        buttonsArea.removeChild(buttonsArea.firstChild);
+    }
+    buttonsArea.appendChild(startBtn)
 }
 
-var timerTimer
-
+// starts the timer
 function startTimer() {
-    timer = 100
-    startBtn.classList.add('hidden')
+    
     timerTimer = setInterval(function () {
-        if (score > 3) {
-            clearInterval(timerTimer);
-        } else if (timer < 1) {
-            clearInterval(timerTimer);
-            h1El.textContent = "You Lose!"
-            questionArea.textContent = "Sorry"
-            buttonOne.classList.add('hidden')
-            buttonTwo.classList.add('hidden')
-            buttonThree.classList.add('hidden')
-            buttonFour.classList.add('hidden')
-            startBtn.classList.remove('hidden')
-        };
-        timer--;
+        if (timer > 0) {
+            timer--
+        } else {
+            clearInterval(timerTimer)
+            endGame();
+            // endQuiz()
+        }
         timerText.textContent = timer;
     }, 1000);
-
 }
 
-function addButtons() {
-    buttonsArea.append(buttonOne);
-    buttonsArea.append(buttonTwo);
-    buttonsArea.append(buttonThree);
-    buttonsArea.append(buttonFour);
-    buttonOne.classList.remove('hidden')
-    buttonTwo.classList.remove('hidden')
-    buttonThree.classList.remove('hidden')
-    buttonFour.classList.remove('hidden')
-    return
-}
-function gameEndWin() {
-    console.log("End of game")
-    console.log("Your score is " + timer)
-    h1El.textContent = "You win!"
-    questionArea.textContent = "Your score is " + timer
-    buttonOne.classList.add('hidden')
-    buttonTwo.classList.add('hidden')
-    buttonThree.classList.add('hidden')
-    buttonFour.classList.add('hidden')
-    startBtn.classList.remove('hidden')
-    return
-}
-
-
-function questionThreeGo() {
-    h1El.textContent = questionThree.titleText
-    questionArea.textContent = questionThree.question;
-    buttonFour.textContent = questionThree.correct.answerText
-    buttonFour.classList.remove('notThis')
-    buttonFour.classList.add('thisOne');
-    buttonFour.classList.remove('incorrect')
-    buttonOne.textContent = questionThree.false1.answerText
-    buttonOne.classList.remove('thisOne')
-    buttonOne.classList.add('notThis');
-    buttonOne.classList.remove('incorrect')
-    buttonTwo.textContent = questionThree.false2.answerText
-    buttonTwo.classList.remove('thisOne')
-    buttonTwo.classList.add('notThis');
-    buttonTwo.classList.remove('incorrect')
-    buttonThree.textContent = questionThree.false3.answerText
-    buttonThree.classList.remove('thisOne')
-    buttonThree.classList.add('notThis');
-    buttonThree.classList.remove('incorrect')
-    buttonsArea.addEventListener('click', function (event) {
-        console.log(event)
-        if (event.target.matches('.thisOne')) {
-            score++
-            gameEndWin();
-            return
-        } else if (event.target.matches('.notThis')) {
-            event.target.classList.add('incorrect')
-            console.log("wrong");
-            console.log(allAnswered)
+function displayQuestion() {
+    // get the index starting at 0 of which question to grab, put it in an easy to read var
+    var questionToDisplay = questions[questionIndex];
+    // put the titletext in the h1 element
+    h1El.textContent = questionToDisplay.titleText;
+    // show the question
+    questionArea.textContent = questionToDisplay.question;
+    for (var i = 0; i < questionToDisplay.choices.length; i++) {
+        var choiceBtn = document.createElement('button');
+        if (questionToDisplay.choices[i].isTrue) {
+            choiceBtn.classList.add('thisOne')
+        } else {
+            choiceBtn.classList.add('notThis')
         }
-    })
-    return
+        choiceBtn.classList.add('buttons')
+        choiceBtn.classList.add('whiteText')
+        choiceBtn.textContent = questionToDisplay.choices[i].answerText
+        buttonsArea.appendChild(choiceBtn);
+    }
+    questionIndex++
 }
 
-function questionTwoGo() {
-    h1El.textContent = questionTwo.titleText
-    questionArea.textContent = questionTwo.question;
-    buttonThree.textContent = questionTwo.correct.answerText
-    buttonThree.classList.remove('notThis')
-    buttonThree.classList.add('thisOne');
-    buttonThree.classList.remove('incorrect')
-    buttonOne.textContent = questionTwo.false1.answerText
-    buttonOne.classList.remove('thisOne')
-    buttonOne.classList.add('notThis');
-    buttonOne.classList.remove('incorrect')
-    buttonTwo.textContent = questionTwo.false2.answerText
-    buttonTwo.classList.remove('thisOne')
-    buttonTwo.classList.add('notThis');
-    buttonTwo.classList.remove('incorrect')
-    buttonFour.textContent = questionTwo.false3.answerText
-    buttonFour.classList.add('notThis');
-    buttonFour.classList.remove('incorrect')
-    buttonsArea.addEventListener('click', function (event) {
-        console.log(event)
-        if (event.target.matches('.thisOne')) {
-            score++
-            questionThreeGo();
-            return
-        } else if (event.target.matches('.notThis')) {
-            event.target.classList.add('incorrect')
-            console.log("wrong");
-            console.log(allAnswered)
-        }
-    })
-    return
-}
-
-function questionOneGo() {
-    h1El.textContent = questionOne.titleText
-    questionArea.textContent = questionOne.question;
-    buttonTwo.textContent = questionOne.correct.answerText
-    buttonTwo.classList.remove('notThis')
-    buttonTwo.classList.add('thisOne');
-    buttonOne.textContent = questionOne.false1.answerText
-    buttonOne.classList.remove('thisOne')
-    buttonOne.classList.add('notThis');
-    buttonThree.textContent = questionOne.false2.answerText
-    buttonThree.classList.remove('thisOne')
-    buttonThree.classList.add('notThis');
-    buttonFour.textContent = questionOne.false3.answerText
-    buttonFour.classList.remove('thisOne')
-    buttonFour.classList.add('notThis');
-    buttonsArea.addEventListener('click', function (event) {
-        console.log(event)
-        if (event.target.matches('.thisOne')) {
-            score++
-            questionTwoGo();
-            return
-        } else if (event.target.matches('.notThis')) {
-            event.target.classList.add('incorrect')
-            console.log("wrong");
-            timer = timer - 5;
-            console.log(allAnswered)
-            return
-        }
-    })
-    return
-}
-
-
-// function getRandomQuestion() {
-
-// }
-
+// the bulk of the game
 function startGame() {
-    score = 0
+    // if we've already completed the game and there are more than 1 children in the questionsAreaDiv
+    if (questionAreaDiv.childElementCount > 1){
+        // we remove the form
+        questionAreaDiv.removeChild(formHighScore)
+    }
+    // otherwise we remove the start button which we know is there.
+    while (buttonsArea.firstChild){
+        buttonsArea.removeChild(buttonsArea.firstChild)
+    }
+    while (highScoreArea.firstChild){
+        highScoreArea.removeChild(highScoreArea.firstChild)
+    }
+    timer = 100
+    questionIndex = 0
     startTimer();
-    addButtons();
-    questionOneGo();
-    console.log(questionOne)
+    displayQuestion();
     return
 }
 
-startBtn.addEventListener('click', startGame);
 
-// look up indexOf() for relative DOM stuff for the buttons
-// use for loops to iterate the questions as li's into the questionsArea
-// do makeTheButtons() then the questions() as different functions
+
+// event listener for starting the game
+startBtn.addEventListener('mouseup', startGame);
+
+// event listener for questions
+buttonsArea.addEventListener('mouseup', function (event) {
+    // if it's the correct one
+    if (event.target.matches(".thisOne")) {
+        // if we still have questions left
+        if (questionIndex < questions.length) {
+            // we remove children for as long as there are children in buttonsArea
+            while (buttonsArea.firstChild) {
+                buttonsArea.removeChild(buttonsArea.firstChild);
+            }
+            displayQuestion();
+        // else the questionIndex will be longer than there are questions and we end the game
+        } else {
+            endGame();
+        }
+    // else if you target the incorrect one
+    } else if (event.target.matches(".notThis")) {
+        timer = timer - 5
+        // we turn it red
+        event.target.classList.add("incorrect")
+    }
+
+})
+
+// get the scores if there are scores
+function init(){
+    yourScoreParsed = JSON.parse(localStorage.getItem('highScores'));
+    if (yourScoreParsed !== null){
+        highScores = yourScoreParsed
+    }
+    console.log(JSON.stringify(yourScoreParsed))
+}
+init();
